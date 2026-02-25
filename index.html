@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MITS Club Management Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #218838;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #56ADB8;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-hover: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        body.dark-mode {
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --text-color: #eee;
+            --text-secondary: #aaa;
+            --border-color: #2d3561;
+            --shadow: 0 2px 10px rgba(0,0,0,0.5);
+            --shadow-hover: 0 5px 20px rgba(0,0,0,0.7);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #56ADB8 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+
+        #loadingScreen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #fff;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .college-brand {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .college-brand h2 {
+            color: var(--primary-color);
+            font-size: 1.3em;
+            margin-bottom: 5px;
+        }
+
+        .college-brand p {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .user-profile {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-profile h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .user-profile p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .role-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.3);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nav-item span {
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+            margin-right: 20px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .dark-mode-toggle {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .dark-mode-toggle:hover {
+            background: var(--secondary-color);
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            font-size: 2em;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-card h3 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 1em;
+            opacity: 0.95;
+        }
+
+        .clubs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .club-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            border: 2px solid var(--border-color);
+        }
+
+        .club-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .club-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .club-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .club-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .club-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .form-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .filter-bar {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group select {
+            padding: 10px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideDown 0.3s;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .events-table {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th,
+        table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        table tr:hover {
+            background: var(--bg-color);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .clubs-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingScreen">
+        <div class="loader"></div>
+        <div class="loading-text">Loading MITS Club Portal...</div>
+    </div>
+
+    <aside class="sidebar">
+        <div class="college-brand">
+            <h2>🎓 Club Management System</h2>
+            <p>Madhav Institute of Technology & Science</p>
+        </div>
+
+        <div class="user-profile">
+            <h3 id="profileName">User Name</h3>
+            <p id="profileEmail">user@mitsgwalior.in</p>
+            <span class="role-badge" id="profileRole">ROLE</span>
+        </div>
+
+        <ul class="nav-menu">
+            <li><a class="nav-item active" onclick="showPage('dashboard')">📊 <span>Dashboard</span></a></li>
+            <li><a class="nav-item" onclick="showPage('clubs')">🏛️ <span>Clubs</span></a></li>
+            <li><a class="nav-item" onclick="showPage('events')">📅 <span>Events</span></a></li>
+            <li><a class="nav-item" onclick="showPage('addClub')" id="navAddClub">➕ <span>Add Club</span></a></li>
+            <li><a class="nav-item" onclick="showPage('profile')">👤 <span>Profile</span></a></li>
+        </ul>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center; font-size: 11px; color: var(--text-secondary);">
+            <p><strong>Developed By:</strong></p>
+            <p>Your Name</p>
+            <p>Roll No: XXXX</p>
+            <p style="margin-top: 10px;">Micro Project 2026</p>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="top-bar">
+            <div class="search-bar">
+                <input type="text" id="globalSearch" placeholder="🔍 Search clubs, events..." onkeyup="globalSearchFunction()">
+            </div>
+            <div class="top-actions">
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div id="alertBox" class="alert"></div>
+
+        <section id="dashboard" class="page-section active">
+            <div class="page-header">
+                <h1>Dashboard</h1>
+                <p>Overview of all club activities</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="statTotalClubs">0</h3>
+                    <p>Total Clubs</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="statActiveClubs">0</h3>
+                    <p>Active Clubs</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="statTotalEvents">0</h3>
+                    <p>Total Events</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="statUpcomingEvents">0</h3>
+                    <p>Upcoming Events</p>
+                </div>
+            </div>
+
+            <div class="page-header" style="margin-top: 40px;">
+                <h2>Recent Clubs</h2>
+            </div>
+            <div id="dashboardClubsList" class="clubs-grid"></div>
+        </section>
+
+        <section id="clubs" class="page-section">
+            <div class="page-header">
+                <h1>All Clubs</h1>
+                <p>Manage college clubs</p>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <select id="filterStatus" onchange="filterClubs()">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                    <select id="filterCategory" onchange="filterClubs()">
+                        <option value="all">All Categories</option>
+                        <option value="technical">Technical</option>
+                        <option value="cultural">Cultural</option>
+                        <option value="sports">Sports</option>
+                        <option value="social">Social</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="clubsList" class="clubs-grid"></div>
+        </section>
+
+        <section id="events" class="page-section">
+            <div class="page-header">
+                <h1>All Events</h1>
+                <p>Upcoming and past club events</p>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <select id="filterEventStatus" onchange="filterEvents()">
+                        <option value="all">All Events</option>
+                        <option value="upcoming">Upcoming</option>
+                        <option value="past">Past</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="events-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Event Name</th>
+                            <th>Club</th>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eventsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="addClub" class="page-section">
+            <div class="page-header">
+                <h1>Add New Club</h1>
+                <p>Create a new club in the system</p>
+            </div>
+
+            <div class="form-container">
+                <form id="addClubForm" onsubmit="addClub(event)">
+                    <div class="form-group">
+                        <label for="clubName">Club Name *</label>
+                        <input type="text" id="clubName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clubCategory">Category *</label>
+                        <select id="clubCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="technical">Technical</option>
+                            <option value="cultural">Cultural</option>
+                            <option value="sports">Sports</option>
+                            <option value="social">Social</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="clubDescription">Description *</label>
+                        <textarea id="clubDescription" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="clubPresident">President Name *</label>
+                        <input type="text" id="clubPresident" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clubEmail">Contact Email *</label>
+                        <input type="email" id="clubEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clubStatus">Status *</label>
+                        <select id="clubStatus" required>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Club</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="profile" class="page-section">
+            <div class="page-header">
+                <h1>My Profile</h1>
+                <p>View and manage your account</p>
+            </div>
+
+            <div class="form-container">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="displayName" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="displayEmail" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <input type="text" id="displayRole" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Login Time</label>
+                    <input type="text" id="displayLoginTime" readonly>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let clubs = JSON.parse(localStorage.getItem('clubs')) || [];
+        let events = JSON.parse(localStorage.getItem('events')) || [];
+        let currentUser = null;
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+        const permissions = {
+            admin: {
+                canAddClub: true,
+                canEditClub: true,
+                canDeleteClub: true,
+                canAddEvent: true,
+                canEditEvent: true,
+                canDeleteEvent: true
+            },
+            president: {
+                canAddClub: true,
+                canEditClub: true,
+                canDeleteClub: false,
+                canAddEvent: true,
+                canEditEvent: true,
+                canDeleteEvent: false
+            },
+            member: {
+                canAddClub: false,
+                canEditClub: false,
+                canDeleteClub: false,
+                canAddEvent: false,
+                canEditEvent: false,
+                canDeleteEvent: false
+            }
+        };
+
+        function hasPermission(perm) {
+            return permissions[currentUser.role][perm] || false;
+        }
+
+        function checkAuth() {
+            const session = localStorage.getItem("club_session");
+            if (!session) {
+                window.location.href = "login.html";
+                return false;
+            }
+            currentUser = JSON.parse(session);
+            if (!currentUser.loggedIn) {
+                window.location.href = "login.html";
+                return false;
+            }
+            return true;
+        }
+
+        function init() {
+            if (!checkAuth()) return;
+
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 1000);
+
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileEmail').textContent = currentUser.email;
+            document.getElementById('profileRole').textContent = currentUser.role.toUpperCase();
+
+            document.getElementById('displayName').value = currentUser.name;
+            document.getElementById('displayEmail').value = currentUser.email;
+            document.getElementById('displayRole').value = currentUser.role.toUpperCase();
+            document.getElementById('displayLoginTime').value = new Date(currentUser.loginTime).toLocaleString();
+
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            }
+
+            if (!hasPermission('canAddClub')) {
+                document.getElementById('navAddClub').style.display = 'none';
+            }
+
+            if (clubs.length === 0) {
+                loadDemoData();
+            }
+
+            updateDashboard();
+            renderClubs();
+            renderEvents();
+        }
+
+        function loadDemoData() {
+            clubs = [
+                {
+                    id: 1,
+                    name: "Software Development Club",
+                    category: "technical",
+                    description: "Learn modern programming and software development",
+                    president: "Rahul Sharma",
+                    email: "sdc@mitsgwalior.in",
+                    status: "active",
+                    created: new Date().toISOString()
+                },
+                {
+                    id: 2,
+                    name: "Cultural Club",
+                    category: "cultural",
+                    description: "Celebrate art, music, and culture",
+                    president: "Priya Singh",
+                    email: "cultural@mitsgwalior.in",
+                    status: "active",
+                    created: new Date().toISOString()
+                },
+                {
+                    id: 3,
+                    name: "Sports Club",
+                    category: "sports",
+                    description: "Promoting fitness and sportsmanship",
+                    president: "Amit Kumar",
+                    email: "sports@mitsgwalior.in",
+                    status: "active",
+                    created: new Date().toISOString()
+                }
+            ];
+
+            events = [
+                {
+                    id: 1,
+                    name: "Hackathon 2026",
+                    clubId: 1,
+                    clubName: "Software Development Club",
+                    date: "2026-02-15",
+                    location: "Auditorium",
+                    description: "24-hour coding competition"
+                },
+                {
+                    id: 2,
+                    name: "Cultural Fest",
+                    clubId: 2,
+                    clubName: "Cultural Club",
+                    date: "2026-03-20",
+                    location: "Main Ground",
+                    description: "Annual cultural festival"
+                }
+            ];
+
+            localStorage.setItem('clubs', JSON.stringify(clubs));
+            localStorage.setItem('events', JSON.stringify(events));
+        }
+
+        function updateDashboard() {
+            document.getElementById('statTotalClubs').textContent = clubs.length;
+            document.getElementById('statActiveClubs').textContent = clubs.filter(c => c.status === 'active').length;
+            document.getElementById('statTotalEvents').textContent = events.length;
+            
+            const today = new Date();
+            const upcoming = events.filter(e => new Date(e.date) >= today).length;
+            document.getElementById('statUpcomingEvents').textContent = upcoming;
+
+            const recent = clubs.slice(0, 3);
+            const container = document.getElementById('dashboardClubsList');
+            container.innerHTML = recent.map(club => createClubCard(club)).join('');
+        }
+
+        function renderClubs() {
+            const container = document.getElementById('clubsList');
+            container.innerHTML = clubs.map(club => createClubCard(club)).join('');
+        }
+
+function createClubCard(club) {
+    const canEdit = hasPermission('canEditClub');
+    const canDelete = hasPermission('canDeleteClub');
+
+    return `
+        <div class="club-card">
+            <h3>${club.name}</h3>
+            <p><strong>Category:</strong> ${club.category}</p>
+            <p><strong>President:</strong> ${club.president}</p>
+            <p><strong>Email:</strong> ${club.email}</p>
+            <p>${club.description}</p>
+            <span class="club-status status-${club.status}">${club.status.toUpperCase()}</span>
+            <div class="club-actions">
+                <button class="btn btn-primary" ${!canEdit ? 'disabled' : ''} onclick="viewClub(${club.id})">View Details</button>
+                <button class="btn btn-success" onclick="joinClub(${club.id})">Join Club</button>
+                <button class="btn btn-danger" ${!canDelete ? 'disabled' : ''} onclick="deleteClub(${club.id})">Delete</button>
+            </div>
+        </div>
+    `;
+}
+function joinClub(clubId) {
+    const club = clubs.find(c => c.id === clubId);
+    if (!club) {
+        showAlert('Club not found!', 'error');
+        return;
+    }
+
+    const userClubs = JSON.parse(localStorage.getItem('userClubs') || '[]');
+    if (userClubs.includes(clubId)) {
+        showAlert('You are already a member of this club!', 'warning');
+        return;
+    }
+
+    userClubs.push(clubId);
+    localStorage.setItem('userClubs', JSON.stringify(userClubs));
+
+    showAlert(`Successfully joined ${club.name}!`, 'success');
+}
+
+
+        function addClub(e) {
+            e.preventDefault();
+            
+            if (!hasPermission('canAddClub')) {
+                showAlert('You do not have permission to add clubs', 'error');
+                return;
+            }
+
+            const club = {
+                id: clubs.length + 1,
+                name: document.getElementById('clubName').value,
+                category: document.getElementById('clubCategory').value,
+                description: document.getElementById('clubDescription').value,
+                president: document.getElementById('clubPresident').value,
+                email: document.getElementById('clubEmail').value,
+                status: document.getElementById('clubStatus').value,
+                created: new Date().toISOString()
+            };
+
+            clubs.push(club);
+            localStorage.setItem('clubs', JSON.stringify(clubs));
+
+            document.getElementById('addClubForm').reset();
+            showAlert('Club added successfully!', 'success');
+            updateDashboard();
+            renderClubs();
+            showPage('clubs');
+        }
+
+        function deleteClub(id) {
+            if (!hasPermission('canDeleteClub')) {
+                showAlert('You do not have permission to delete clubs', 'error');
+                return;
+            }
+
+            if (confirm('Are you sure you want to delete this club?')) {
+                clubs = clubs.filter(c => c.id !== id);
+                localStorage.setItem('clubs', JSON.stringify(clubs));
+                showAlert('Club deleted successfully', 'success');
+                updateDashboard();
+                renderClubs();
+            }
+        }
+
+        function viewClub(id) {
+            const club = clubs.find(c => c.id === id);
+            if (club) {
+                alert(`Club: ${club.name}\nCategory: ${club.category}\nPresident: ${club.president}\nEmail: ${club.email}\nDescription: ${club.description}`);
+            }
+        }
+
+        function renderEvents() {
+            const tbody = document.getElementById('eventsTableBody');
+            const today = new Date();
+
+            tbody.innerHTML = events.map(event => {
+                const eventDate = new Date(event.date);
+                const status = eventDate >= today ? 'Upcoming' : 'Past';
+                const canDelete = hasPermission('canDeleteEvent');
+
+                return `
+                    <tr>
+                        <td>${event.name}</td>
+                        <td>${event.clubName}</td>
+                        <td>${event.date}</td>
+                        <td>${event.location}</td>
+                        <td>${status}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" ${!canDelete ? 'disabled' : ''} onclick="deleteEvent(${event.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function deleteEvent(id) {
+            if (!hasPermission('canDeleteEvent')) {
+                showAlert('You do not have permission to delete events', 'error');
+                return;
+            }
+
+            if (confirm('Delete this event?')) {
+                events = events.filter(e => e.id !== id);
+                localStorage.setItem('events', JSON.stringify(events));
+                showAlert('Event deleted', 'success');
+                renderEvents();
+                updateDashboard();
+            }
+        }
+
+        function filterClubs() {
+            const status = document.getElementById('filterStatus').value;
+            const category = document.getElementById('filterCategory').value;
+
+            let filtered = clubs;
+
+            if (status !== 'all') {
+                filtered = filtered.filter(c => c.status === status);
+            }
+
+            if (category !== 'all') {
+                filtered = filtered.filter(c => c.category === category);
+            }
+
+            const container = document.getElementById('clubsList');
+            container.innerHTML = filtered.map(club => createClubCard(club)).join('');
+        }
+
+        function filterEvents() {
+            const filter = document.getElementById('filterEventStatus').value;
+            const today = new Date();
+
+            let filtered = events;
+
+            if (filter === 'upcoming') {
+                filtered = events.filter(e => new Date(e.date) >= today);
+            } else if (filter === 'past') {
+                filtered = events.filter(e => new Date(e.date) < today);
+            }
+
+            const tbody = document.getElementById('eventsTableBody');
+            tbody.innerHTML = filtered.map(event => {
+                const eventDate = new Date(event.date);
+                const status = eventDate >= today ? 'Upcoming' : 'Past';
+                const canDelete = hasPermission('canDeleteEvent');
+
+                return `
+                    <tr>
+                        <td>${event.name}</td>
+                        <td>${event.clubName}</td>
+                        <td>${event.date}</td>
+                        <td>${event.location}</td>
+                        <td>${status}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" ${!canDelete ? 'disabled' : ''} onclick="deleteEvent(${event.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function globalSearchFunction() {
+            const query = document.getElementById('globalSearch').value.toLowerCase();
+            
+            const filteredClubs = clubs.filter(c => 
+                c.name.toLowerCase().includes(query) || 
+                c.description.toLowerCase().includes(query)
+            );
+
+            const container = document.getElementById('clubsList');
+            container.innerHTML = filteredClubs.map(club => createClubCard(club)).join('');
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alertBox');
+            alert.textContent = message;
+            alert.className = `alert alert-${type} show`;
+            setTimeout(() => alert.classList.remove('show'), 3000);
+        }
+
+        function logout() {
+            localStorage.removeItem('club_session');
+            window.location.href = 'login.html';
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
