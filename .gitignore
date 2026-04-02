@@ -1,0 +1,2 @@
+C:\Users\Abhay Raj Jain\OneDrive\Desktop\CMS-main>git rm -r --cached node_modules
+fatal: pathspec 'node_modules' did not match any files
