@@ -1,2 +1,25 @@
-C:\Users\Abhay Raj Jain\OneDrive\Desktop\CMS-main>git rm -r --cached node_modules
-fatal: pathspec 'node_modules' did not match any files
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Coverage and build
+coverage/
+dist/
+build/
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.swp
