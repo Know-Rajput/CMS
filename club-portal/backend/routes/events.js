@@ -18,7 +18,14 @@ router.get("/", async (req, res) => {
 router.post("/join/:id", async(req,res) => {
     const { email } = req.body;
     const event = await Event.findById(req.params.id);
-    event.participants.push(email);
+    if(!event.participants)
+        {
+            event.participants = [];
+        }
+    if(!event.participants.includes(email)) 
+        {
+            event.participants.push(email);
+        }
     await event.save();
 
     res.json({ message: "Joined Event" });
